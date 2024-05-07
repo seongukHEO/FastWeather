@@ -1,8 +1,10 @@
 package kr.co.seonguk.application.fastweather
 
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.annotation.RequiresApi
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -10,6 +12,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -21,10 +24,14 @@ class MainActivity : AppCompatActivity() {
 
         val service = retrofit.create(WeatherService::class.java)
 
+        val baseDate = BaseDateTime.getBaseDateTime()
+
+        Log.e("test1234", "${baseDate.baseDate}, ${baseDate.baseTime}")
+
         service.getVillageForecast(
             "Qahe3YsG5DEh1NrEibW9IUu4P/yYTgk4lBC6o0giu4nI1UjwSA3iTZXm4OcQ4Z/Q1ALRTLaKfZ6DsMEg+XsoqA==",
-            "20240507",
-            "1100",
+            baseDate.baseDate,
+            baseDate.baseTime,
             55,
             127
         ).enqueue(object :Callback<WeatherEntity>{

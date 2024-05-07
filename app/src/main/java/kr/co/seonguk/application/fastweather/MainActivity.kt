@@ -26,14 +26,17 @@ class MainActivity : AppCompatActivity() {
 
         val baseDate = BaseDateTime.getBaseDateTime()
 
+
+        val point = GeoPointConverter().convert(lat = 37.5532, lon = 127.1906)
+
         Log.e("test1234", "${baseDate.baseDate}, ${baseDate.baseTime}")
 
         service.getVillageForecast(
             "Qahe3YsG5DEh1NrEibW9IUu4P/yYTgk4lBC6o0giu4nI1UjwSA3iTZXm4OcQ4Z/Q1ALRTLaKfZ6DsMEg+XsoqA==",
             baseDate.baseDate,
             baseDate.baseTime,
-            55,
-            127
+            point.nx,
+            point.ny
         ).enqueue(object :Callback<WeatherEntity>{
             override fun onResponse(p0: Call<WeatherEntity>, p1: Response<WeatherEntity>) {
 

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">FastWeather</string>
+    <string name="temperature_text">%.1f°</string>
+    <string name="precipitation_text">강수 확률 : %d %%</string>
 </resources>

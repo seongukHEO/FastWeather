@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.LocationServices
+import kr.co.seonguk.application.fastweather.databinding.ActivityMainBinding
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -21,6 +22,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
+
+    lateinit var binding:ActivityMainBinding
 
     @RequiresApi(Build.VERSION_CODES.O)
     val locationPermissionRequest = registerForActivityResult(
@@ -44,7 +47,8 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         locationPermissionRequest.launch(arrayOf(
             Manifest.permission.ACCESS_COARSE_LOCATION))
     }
@@ -138,7 +142,22 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    Log.d("test1234", forecastDateTimeMap.toString())
+                    //데이터 집어넣기
+                    //들어오는 값 정리하기
+                    //최신순으로 줬겠지만 혹시 모르니 한 번 더 정렬한다 (시간순)
+                    val list = forecastDateTimeMap.values.toMutableList()
+                    list.sortWith{ f1, f2 ->
+                        val f1DateTime = "${f1.fcstDate}${f1.fcstDate}"
+                        val f2DateTime = "${f2.fcstDate}${f2.fcstDate}"
+
+                        return@sortWith f1DateTime.compareTo(f2DateTime)
+                    }
+
+                    val currentForecast = list.first()
+
+                    binding.temperatureTextview.text = getString(R.string.temperature_text, currentForecast.temperature)
+                    binding.skyTextview.text = currentForecast.precipitationType
+                    binding.precipitationTextview.text = getString(R.string.precipitation_text, currentForecast.precipitation)
                 }
 
                 override fun onFailure(p0: Call<WeatherEntity>, p1: Throwable) {

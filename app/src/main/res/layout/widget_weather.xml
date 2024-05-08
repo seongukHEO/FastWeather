@@ -7,7 +7,7 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/temperatureTextview"
+        android:id="@+id/temperature1Textview"
         android:text="초기화"
         android:textSize="20sp"
         android:textColor="@color/white"
@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"/>
 
     <TextView
-        android:id="@+id/weatherTextView"
+        android:id="@+id/weather1TextView"
         android:text="test"
         android:textSize="10sp"
         android:textColor="@color/white"

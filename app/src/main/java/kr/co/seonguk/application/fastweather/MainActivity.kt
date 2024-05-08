@@ -38,11 +38,11 @@ class MainActivity : AppCompatActivity() {
             }
             else -> {
                 Toast.makeText(this, "위치 권한이 필요합니다",Toast.LENGTH_SHORT).show()
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                val newIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = Uri.fromParts("package", packageName, null)
-                    startActivity(intent)
-                    finish()
                 }
+                startActivity(newIntent)
+                finish()
             }
         }
     }
@@ -91,6 +91,8 @@ class MainActivity : AppCompatActivity() {
                 successCallback = { list ->
 
                     val currentForecast = list.first()
+
+                    //Log.d("sibal1234", currentForecast.sky)
 
                     binding.temperatureTextview.text = getString(R.string.temperature_text, currentForecast.temperature)
                     binding.skyTextview.text = currentForecast.precipitationType

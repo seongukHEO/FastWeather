@@ -3,6 +3,7 @@ package kr.co.seonguk.application.fastweather
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -15,11 +16,13 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.LocationServices
 import kr.co.seonguk.application.fastweather.databinding.ActivityMainBinding
+import kr.co.seonguk.application.fastweather.databinding.ItemForecastBinding
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -86,6 +89,21 @@ class MainActivity : AppCompatActivity() {
             return
         }
         fusedLocationClient.lastLocation.addOnSuccessListener {
+
+            Thread{
+                try {
+                    //오래 걸리기 때문에 백그라운드 서비스를 사용하는 것이 좋다
+                    val addressList = Geocoder(this, Locale.KOREA).getFromLocation(it.latitude, it.longitude, 1)
+
+                    runOnUiThread {
+                        //Thread를 사용하였기 때문에 화면관련된 Thread는 따로 작업을 해줘야함
+                        binding.locationTextView.text = addressList?.get(0)?.thoroughfare.orEmpty()
+                    }
+                }catch (e:Exception){
+                    e.printStackTrace()
+                }
+            }.start()
+
             val retrofit = Retrofit.Builder()
                 .baseUrl("http://apis.data.go.kr/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -147,8 +165,8 @@ class MainActivity : AppCompatActivity() {
                     //최신순으로 줬겠지만 혹시 모르니 한 번 더 정렬한다 (시간순)
                     val list = forecastDateTimeMap.values.toMutableList()
                     list.sortWith{ f1, f2 ->
-                        val f1DateTime = "${f1.fcstDate}${f1.fcstDate}"
-                        val f2DateTime = "${f2.fcstDate}${f2.fcstDate}"
+                        val f1DateTime = "${f1.fcstDate}${f1.fcstTime}"
+                        val f2DateTime = "${f2.fcstDate}${f2.fcstTime}"
 
                         return@sortWith f1DateTime.compareTo(f2DateTime)
                     }
@@ -158,6 +176,21 @@ class MainActivity : AppCompatActivity() {
                     binding.temperatureTextview.text = getString(R.string.temperature_text, currentForecast.temperature)
                     binding.skyTextview.text = currentForecast.precipitationType
                     binding.precipitationTextview.text = getString(R.string.precipitation_text, currentForecast.precipitation)
+
+
+                    binding.childForecastLayout.apply {
+                        list.forEachIndexed { index, forecast ->
+                            if (index == 0) {return@forEachIndexed}
+
+                            val itemView = ItemForecastBinding.inflate(layoutInflater)
+
+                            itemView.timeTextView.text = forecast.fcstTime
+                            itemView.weatherTextView.text = forecast.sky
+                            itemView.temperatureTextview.text = getString(R.string.temperature_text, forecast.temperature)
+
+                            addView(itemView.root)
+                        }
+                    }
                 }
 
                 override fun onFailure(p0: Call<WeatherEntity>, p1: Throwable) {
